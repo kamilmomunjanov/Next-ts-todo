@@ -7,12 +7,12 @@ export const getTodos = async (): Promise<Todo[]> => {
     return todos;
 }
 
-export const useGetTodos = () => {
-    const { isPending, error, data } = useQuery({
+export const useGetTodos = (defaultData?: Todo[]) => {
+    const query = useQuery({
         queryFn: () => getTodos(),
         queryKey: ['todos'],
+        initialData: defaultData
     });
 
-
-    return [data || [], isPending, error ] as const;
+    return [query.data ?? [], query] as const;
 }

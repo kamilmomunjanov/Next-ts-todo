@@ -1,30 +1,65 @@
-import {useRouter} from 'next/router';
-import React, {useState, useEffect} from "react";
+import { useRouter } from 'next/router';
+import React, { useState, useEffect } from "react";
 import Vanta from "@/src/vanta/Vanta";
-import {useFetchTodoById} from "@/src/helpers/getTodoId";
-import {useUpdateTodo} from "@/src/helpers/updateTodo";
+import { useFetchTodoById } from "@/src/helpers/getTodoId";
+import { useUpdateTodo } from "@/src/helpers/updateTodo";
 import Link from "next/link";
+import { useParams } from 'next/navigation';
+import { z } from 'zod';
 
 type TodoFormValues = {
     title: string;
     completed: boolean;
-    id:number
+    id: string;
 };
 
-type Props = {
+type TodoFormProps = {
     onSubmit: (values: TodoFormValues) => void;
-    defaultValues?: TodoFormValues;
-};
+    defaultValues: TodoFormValues;
+}
 
 
-const TodoUpdatePage = ({defaultValues}: Props) => {
+const schema = z.object({
+    id: z.string(),
+    title: z.string(),
+    completed: z.boolean(),
+});
+
+const registerSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(6, "Пароль должен быть не менее 6 символов"),
+    passwordConfirm: z.string().min(6, "Пароль должен быть не менее 6 символов")
+})
+    .refine(data => data.password === data.passwordConfirm, {
+        message: "Пароли не совпадают",
+        path: ["passwordConfirm"]
+    });
+
+
+
+
+const form = useForm({
+    resolver: zodResolver(schema)
+})
+
+
+// react-hook-form + zod
+const TodoForm = (props: TodoFormProps) => {
+    const [values, setValues] = useState<TodoFormValues>(todo);
+
+}
+
+const TodoUpdatePage = () => {
     const [updateTodo] = useUpdateTodo()
     const router = useRouter();
-    const {id} = router.query;
-    const todo  = useFetchTodoById(id);
-    const [updatedTitle, setUpdatedTitle] = useState(todo[0]?.title || "");
-    const [values, setValues] = useState<TodoFormValues>(todo[0]);
-    console.log(todo)
+
+    const params = useParams<{ id: string }>();
+
+
+    const [todo] = useFetchTodoById(params?.id);
+
+    const [updatedTitle, setUpdatedTitle] = useState(todo?.title || "");
+    const [values, setValues] = useState<TodoFormValues>(todo);
 
     useEffect(() => {
         setValues((prevValues) => ({
@@ -46,6 +81,18 @@ const TodoUpdatePage = ({defaultValues}: Props) => {
         event.preventDefault();
         await updateTodo({ id: values.id, title: values.title, completed: values.completed });
     };
+
+    return (
+        <div>
+            <h1>Todo Update Page</h1>
+
+            {
+                todo ? (
+                    <TodoForm defaultValues={todo} onSubmit={handleSubmit} />
+                ) : null
+            }
+        </div>
+    )
 
     return (
         <div className="relative">
