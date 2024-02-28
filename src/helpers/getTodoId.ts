@@ -3,7 +3,7 @@ import { baseAxios } from "../api/axios";
 import { Todo } from "../dataType";
 
 type ArgsId = {
-    id: number;
+    id: string;
 }
 
 export const getTodoId = async (arg: ArgsId): Promise<Todo> => {
@@ -11,8 +11,8 @@ export const getTodoId = async (arg: ArgsId): Promise<Todo> => {
     return todo;
 }
 
-export const useFetchTodoById = (id: number) => {
-    const {data, isPending, error,  } = useQuery({
+export const useFetchTodoById = (id: string) => {
+    const query = useQuery({
         queryFn: () => {
             if (id !== undefined) {
                 return getTodoId({ id });
@@ -21,7 +21,8 @@ export const useFetchTodoById = (id: number) => {
             }
         },
         queryKey: ['todos', id],
+
     });
 
-    return [data || null] as const;
+    return [query.data ?? null, query] as const;
 }

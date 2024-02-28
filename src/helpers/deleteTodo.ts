@@ -23,12 +23,26 @@ export const useDeleteTodo = () => {
     const mutation = useMutation({
         mutationFn: deleteTodo,
         onSuccess: (data, variables) => {
+
+            const todos = queryClient.getQueryData<Todo[]>(['todos']);
+
+            if (todos) {
+                queryClient.setQueryData<Todo[]>(
+                    ['todos'],
+                    todos.filter((todo) => todo.id !== variables.id)
+                );
+            }
+            alert("Todo удалено");
+        },
+        onError: (error) => {
             queryClient.invalidateQueries({
                 predicate(query) {
                     return query.queryKey[0] === "todos";
                 },
             });
-            alert("Todo удалено");
+        },
+        onSettled(data, error, variables, context) {
+
         },
     });
 
