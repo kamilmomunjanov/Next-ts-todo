@@ -31,7 +31,7 @@ const TodoUpdatePage = ({defaultValues}: Props) => {
             ...prevValues,
             title: updatedTitle,
         }));
-    }, [updatedTitle, id]);
+    }, []);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value, type, checked } = event.target;
@@ -80,7 +80,7 @@ const TodoUpdatePage = ({defaultValues}: Props) => {
                             <input
                                 type="text"
                                 name="title"
-                                value={updatedTitle || values.title}
+                                value={updatedTitle || values.title || todo[0]?.title}
                                 onChange={(e) => {
                                     setUpdatedTitle(e.target.value)
                                     handleChange(e)
